@@ -4,12 +4,13 @@ version = "0.1.0"
 edition = "2024_07"
 
 [dependencies]
-starknet = "2.9.2"
-openzeppelin = "0.20.0"
-utils = { git = "https://github.com/keep-starknet-strange/raito.git", rev = "dc3d54e84118630efa5e7069eb5c414fd8fbae3f" }
+starknet = "2.11.4"
+openzeppelin = { git = "https://github.com/openzeppelin/cairo-contracts" }
+openzeppelin_upgrades = { git = "https://github.com/openzeppelin/cairo-contracts" }
+utils = { git = "https://github.com/keep-starknet-strange/raito.git" }
 
 [dev-dependencies]
-snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.34.0" }
+snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git" }
 
 [scripts]
 test = "snforge test"
