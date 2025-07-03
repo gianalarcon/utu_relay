@@ -1,25 +1,21 @@
 #[starknet::contract]
 pub mod UtuRelay {
-    use starknet::{get_block_timestamp, storage::{StorageMapWriteAccess}};
-    use crate::{
-        bitcoin::{
-            block::{BlockHeader, BlockHashTrait, PowVerificationTrait, compute_pow_from_target},
-            block_height::get_block_height
-        },
-        utils::digest::DigestStore,
-        interfaces::{IUtuRelay, BlockStatus, HeightProof, BlockStatusTrait}
-    };
-    use starknet::{
-        ClassHash, ContractAddress,
-        storage::{
-            StorageMapReadAccess, StoragePointerReadAccess, StoragePointerWriteAccess,
-            StoragePathEntry, Map
-        }
-    };
-    use utils::hash::Digest;
     use core::num::traits::zero::Zero;
-    use openzeppelin::{access::ownable::OwnableComponent, upgrades::UpgradeableComponent,};
-    use openzeppelin::upgrades::interface::IUpgradeable;
+    use openzeppelin_access::ownable::OwnableComponent;
+    use openzeppelin_upgrades::UpgradeableComponent;
+    use openzeppelin_upgrades::interface::IUpgradeable;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry,
+        StoragePointerReadAccess, StoragePointerWriteAccess,
+    };
+    use starknet::{ClassHash, ContractAddress, get_block_timestamp};
+    use utils::hash::Digest;
+    use crate::bitcoin::block::{
+        BlockHashTrait, BlockHeader, PowVerificationTrait, compute_pow_from_target,
+    };
+    use crate::bitcoin::block_height::get_block_height;
+    use crate::interfaces::{BlockStatus, BlockStatusTrait, HeightProof, IUtuRelay};
+    use crate::utils::digest::DigestStore;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
@@ -45,7 +41,7 @@ pub mod UtuRelay {
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
         #[substorage(v0)]
-        upgradeable: UpgradeableComponent::Storage
+        upgradeable: UpgradeableComponent::Storage,
     }
 
     #[event]
@@ -54,7 +50,7 @@ pub mod UtuRelay {
         #[flat]
         OwnableEvent: OwnableComponent::Event,
         #[flat]
-        UpgradeableEvent: UpgradeableComponent::Event
+        UpgradeableEvent: UpgradeableComponent::Event,
     }
 
     #[constructor]
@@ -96,13 +92,13 @@ pub mod UtuRelay {
                         // verifies pow spent
                         if block_hash.into() > target_threshold {
                             panic!("Block hash is higher than its target threshold.");
-                        };
+                        }
                         // estimate pow value
                         let pow = compute_pow_from_target(target_threshold);
                         self
                             .blocks
                             .write(block_hash, BlockStatusTrait::new(*block.prev_block_hash, pow));
-                    }
+                    },
                 };
             };
         }
@@ -112,7 +108,7 @@ pub mod UtuRelay {
             begin_height: u64,
             mut end_height: u64,
             end_block_hash: Digest,
-            height_proof: Option<HeightProof>
+            height_proof: Option<HeightProof>,
         ) {
             let mut requires_height_proof = true;
             // This helper will write the ancestry of end_block_hash over [begin_height, end_height]
@@ -120,29 +116,29 @@ pub mod UtuRelay {
             // returns the cumulated pow of the overwritten blocks (current) and the fork (new).
             let (mut current_cpow, new_cpow) = self
                 .update_canonical_chain_helper(
-                    ref requires_height_proof, end_block_hash, end_height, begin_height - 1
+                    ref requires_height_proof, end_block_hash, end_height, begin_height - 1,
                 );
 
             if requires_height_proof {
                 match height_proof {
                     Option::None => {
                         panic!(
-                            "You must provide a height proof if you don't continue the canonical chain."
+                            "You must provide a height proof if you don't continue the canonical chain.",
                         )
                     },
                     Option::Some(height_proof) => {
                         if self.chain.read(begin_height) != height_proof.header.hash() {
                             panic!(
-                                "Your provided proof doesn't correspond to the begin block height."
+                                "Your provided proof doesn't correspond to the begin block height.",
                             );
-                        };
+                        }
                         let extracted_height = get_block_height(@height_proof);
                         if extracted_height != begin_height {
                             panic!("Your provided proof doesn't prove the correct height.");
                         };
-                    }
+                    },
                 }
-            };
+            }
 
             let mut next_block_i = end_height + 1;
             let mut next_chain_entry = self.chain.entry(next_block_i);
@@ -201,7 +197,7 @@ pub mod UtuRelay {
             let timestamp = get_block_timestamp();
             if timestamp - block_status.registration_timestamp < min_age {
                 panic!("Block registration age is below minimum required.")
-            };
+            }
 
             // check that cpow is good
             let mut cpow = 0;
@@ -245,7 +241,7 @@ pub mod UtuRelay {
                 if current_block_digest != Zero::zero() {
                     if current_block_digest != new_block_digest {
                         panic!(
-                            "Canonical chain block preceding your proposed fork is inconsistent. Please provide a stronger replacement."
+                            "Canonical chain block preceding your proposed fork is inconsistent. Please provide a stronger replacement.",
                         );
                     } else {
                         // if there is a valid connecting block, we don't need a height_proof
@@ -268,7 +264,7 @@ pub mod UtuRelay {
                     ref requires_height_proof,
                     new_block.prev_block_digest,
                     block_index - 1,
-                    stop_index
+                    stop_index,
                 );
 
             // if there was no conflict before

@@ -5,8 +5,8 @@ edition = "2024_07"
 
 [dependencies]
 starknet = "2.11.4"
-openzeppelin = { git = "https://github.com/openzeppelin/cairo-contracts" }
-openzeppelin_upgrades = { git = "https://github.com/openzeppelin/cairo-contracts" }
+openzeppelin_access = { git = "https://github.com/openzeppelin/cairo-contracts", tag = "v2.0.0" }
+openzeppelin_upgrades = { git = "https://github.com/openzeppelin/cairo-contracts", tag = "v2.0.0" }
 utils = { git = "https://github.com/keep-starknet-strange/raito.git" }
 
 [dev-dependencies]
