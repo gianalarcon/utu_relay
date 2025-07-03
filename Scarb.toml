@@ -7,7 +7,7 @@ edition = "2024_07"
 starknet = "2.11.4"
 openzeppelin_access = { git = "https://github.com/openzeppelin/cairo-contracts", tag = "v2.0.0" }
 openzeppelin_upgrades = { git = "https://github.com/openzeppelin/cairo-contracts", tag = "v2.0.0" }
-utils = { git = "https://github.com/keep-starknet-strange/raito.git" }
+utils = { git = "https://github.com/keep-starknet-strange/raito.git", rev = "c5af001c0cb97b657800644ed42fd6261f94e446" }
 
 [dev-dependencies]
 snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git" }
